@@ -12,8 +12,8 @@
         <div class="nav-container">
             <div class="logo">🚗 سوق السيارات</div>
             <div class="nav-menu" id="navMenu">
-                <a href="#" onclick="showPage('home')" class="nav-link active">الرئيسية</a>
-                <a href="#" onclick="showPage('cars')" class="nav-link">السيارات</a>
+                <a href="#" onclick="event.preventDefault(); showPage('home')" class="nav-link active">الرئيسية</a>
+                <a href="#" onclick="event.preventDefault(); showPage('cars')" class="nav-link">السيارات</a>
                 <span id="userInfo" class="nav-link" style="display:none;">👤 <span id="userName"></span></span>
                 <button onclick="logout()" class="nav-link logout-btn" id="logoutBtn" style="display:none;">تسجيل خروج</button>
             </div>
@@ -99,173 +99,148 @@
             <div class="cars-grid" id="carsGrid">
                 <!-- Cars will be displayed here -->
             </div>
-
-            <!-- Add Car Form Modal -->
-            <div id="addCarModal" class="modal" style="display:none;">
-                <div class="modal-content">
-                    <span class="close" onclick="closeAddCarForm()">&times;</span>
-                    <h2>إضافة سيارة جديدة</h2>
-                    <form onsubmit="handleAddCar(event)">
-                        <div class="form-group">
-                            <label>اسم السيارة</label>
-                            <input type="text" id="carName" placeholder="مثال: BMW X5" required>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>الموديل</label>
-                                <input type="text" id="carModel" placeholder="مثال: 2020" required>
-                            </div>
-                            <div class="form-group">
-                                <label>السنة</label>
-                                <input type="number" id="carYear" placeholder="2024" required>
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>النوع</label>
-                                <select id="carType" required>
-                                    <option value="">اختر النوع</option>
-                                    <option value="سيدان">سيدان</option>
-                                    <option value="SUV">SUV</option>
-                                    <option value="هاتشباك">هاتشباك</option>
-                                    <option value="ستيشن">ستيشن</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>السعر (دينار)</label>
-                                <input type="number" id="carPrice" placeholder="السعر" required>
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>الفئة</label>
-                                <select id="carCategory" required>
-                                    <option value="">اختر الفئة</option>
-                                    <option value="showroom">معرض</option>
-                                    <option value="workshop">ورشة</option>
-                                    <option value="parts">أدوات احتياطية</option>
-                                    <option value="sonar">سونار</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>صورة السيارة (URL)</label>
-                                <input type="url" id="carImage" placeholder="رابط الصورة" required>
-                            </div>
-                        </div>
-
-                        <!-- Repaired Parts -->
-                        <div class="form-group">
-                            <label><strong>القطع المصلحة</strong></label>
-                            <button type="button" class="btn btn-small" onclick="addRepairedPartField()">+ إضافة قطعة مصلحة</button>
-                            <div id="repairedParts"></div>
-                        </div>
-
-                        <!-- Replaced Parts -->
-                        <div class="form-group">
-                            <label><strong>القطع المستبدلة</strong></label>
-                            <button type="button" class="btn btn-small" onclick="addReplacedPartField()">+ إضافة قطعة مستبدلة</button>
-                            <div id="replacedParts"></div>
-                        </div>
-
-                        <!-- Painted Parts -->
-                        <div class="form-group">
-                            <label><strong>القطع المصبوغة</strong></label>
-                            <button type="button" class="btn btn-small" onclick="addPaintedPartField()">+ إضافة قطعة مصبوغة</button>
-                            <div id="paintedParts"></div>
-                        </div>
-
-                        <!-- Province and Phone -->
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>المحافظة</label>
-                                <select id="sellerProvince" required>
-                                    <option value="">اختر المحافظة</option>
-                                    <option value="بغداد">بغداد</option>
-                                    <option value="البصرة">البصرة</option>
-                                    <option value="الموصل">الموصل</option>
-                                    <option value="كربلاء">كربلاء</option>
-                                    <option value="النجف">النجف</option>
-                                    <option value="أربيل">أربيل</option>
-                                    <option value="السليمانية">السليمانية</option>
-                                    <option value="ديالى">ديالى</option>
-                                    <option value="الأنبار">الأنبار</option>
-                                    <option value="كركوك">كركوك</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>رقم الهاتف</label>
-                                <input type="tel" id="sellerPhone" placeholder="07700000000" required>
-                            </div>
-                        </div>
-
-                        <button type="submit" class="btn btn-primary">حفظ السيارة</button>
-                    </form>
-                </div>
-            </div>
         </div>
     </div>
 
     <!-- Page 3: Car Details -->
     <div id="carDetailsPage" class="page">
         <div class="details-container">
-            <button class="btn btn-back" onclick="showPage('cars')">← العودة</button>
-            
-            <div class="car-details">
-                <!-- Car Image -->
-                <div class="car-image-section">
-                    <img id="detailsCarImage" src="" alt="السيارة" class="car-detail-image">
+            <button class="btn btn-secondary" onclick="showPage('cars')">← العودة إلى السيارات</button>
+
+            <div class="details-content">
+                <div class="details-image">
+                    <img id="detailsCarImage" src="" alt="السيارة">
                 </div>
 
-                <!-- Car Info -->
-                <div class="car-info-section">
+                <div class="details-info">
                     <h1 id="detailsCarName"></h1>
+                    <span class="car-category" id="detailsCarCategory"></span>
                     <p class="car-price" id="detailsCarPrice"></p>
-                    <p class="car-category" id="detailsCarCategory"></p>
 
-                    <!-- Basic Info -->
-                    <div class="info-block">
-                        <h3>📋 المعلومات الأساسية</h3>
-                        <div class="info-grid">
-                            <p><strong>الموديل:</strong> <span id="detailsCarModel"></span></p>
-                            <p><strong>السنة:</strong> <span id="detailsCarYear"></span></p>
-                            <p><strong>النوع:</strong> <span id="detailsCarType"></span></p>
+                    <div class="car-specs">
+                        <div class="spec-item">
+                            <strong>الموديل:</strong>
+                            <span id="detailsCarModel"></span>
+                        </div>
+                        <div class="spec-item">
+                            <strong>السنة:</strong>
+                            <span id="detailsCarYear"></span>
+                        </div>
+                        <div class="spec-item">
+                            <strong>النوع:</strong>
+                            <span id="detailsCarType"></span>
                         </div>
                     </div>
 
                     <!-- Repaired Parts -->
-                    <div class="info-block">
+                    <div class="parts-section">
                         <h3>🔧 القطع المصلحة</h3>
-                        <div id="repairedPartsDisplay">
-                            <p class="no-data">لا توجد قطع مصلحة</p>
-                        </div>
+                        <div id="repairedPartsDisplay"></div>
                     </div>
 
                     <!-- Replaced Parts -->
-                    <div class="info-block">
-                        <h3>🔄 القطع المستبدلة</h3>
-                        <div id="replacedPartsDisplay">
-                            <p class="no-data">لا توجد قطع مستبدلة</p>
-                        </div>
+                    <div class="parts-section">
+                        <h3>🛠️ القطع المستبدلة</h3>
+                        <div id="replacedPartsDisplay"></div>
                     </div>
 
                     <!-- Painted Parts -->
-                    <div class="info-block">
+                    <div class="parts-section">
                         <h3>🎨 القطع المصبوغة</h3>
-                        <div id="paintedPartsDisplay">
-                            <p class="no-data">لا توجد قطع مصبوغة</p>
-                        </div>
+                        <div id="paintedPartsDisplay"></div>
                     </div>
 
                     <!-- Seller Info -->
-                    <div class="info-block seller-info">
-                        <h3>👤 معلومات البائع</h3>
+                    <div class="seller-section">
+                        <h3>📱 معلومات البائع</h3>
                         <p><strong>الاسم:</strong> <span id="detailsSellerName"></span></p>
                         <p><strong>الهاتف:</strong> <span id="detailsSellerPhone"></span></p>
                         <p><strong>المحافظة:</strong> <span id="detailsSellerProvince"></span></p>
-                        <button class="btn btn-contact" onclick="contactSeller()">📞 اتصل بالبائع</button>
+                        <button class="btn btn-primary" onclick="contactSeller()">📞 التواصل مع البائع</button>
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Modal: Add Car Form -->
+    <div id="addCarModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeAddCarForm()">&times;</span>
+            <h2>إضافة سيارة جديدة</h2>
+
+            <form id="addCarForm" onsubmit="handleAddCar(event)">
+                <!-- Car Basic Info -->
+                <div class="form-group">
+                    <label>اسم السيارة</label>
+                    <input type="text" id="carName" placeholder="BMW X5" required>
+                </div>
+
+                <div class="form-group">
+                    <label>الموديل</label>
+                    <input type="text" id="carModel" placeholder="2023" required>
+                </div>
+
+                <div class="form-group">
+                    <label>السنة</label>
+                    <input type="number" id="carYear" placeholder="2023" min="1990" max="2030" required>
+                </div>
+
+                <div class="form-group">
+                    <label>النوع</label>
+                    <input type="text" id="carType" placeholder="SUV" required>
+                </div>
+
+                <div class="form-group">
+                    <label>السعر (د.ع)</label>
+                    <input type="number" id="carPrice" placeholder="50000000" required>
+                </div>
+
+                <div class="form-group">
+                    <label>رابط صورة السيارة</label>
+                    <input type="url" id="carImage" placeholder="https://..." required>
+                </div>
+
+                <div class="form-group">
+                    <label>الفئة</label>
+                    <select id="carCategory" required>
+                        <option value="">اختر الفئة</option>
+                        <option value="showroom">🏪 معرض</option>
+                        <option value="workshop">🔧 ورشة</option>
+                        <option value="parts">🛠️ أدوات احتياطية</option>
+                        <option value="sonar">📡 سونار</option>
+                    </select>
+                </div>
+
+                <!-- Seller Info -->
+                <h3>معلومات البائع</h3>
+                <div class="form-group">
+                    <label>رقم الهاتف</label>
+                    <input type="tel" id="sellerPhone" placeholder="07700123456" required>
+                </div>
+
+                <div class="form-group">
+                    <label>المحافظة</label>
+                    <input type="text" id="sellerProvince" placeholder="بغداد" required>
+                </div>
+
+                <!-- Repaired Parts -->
+                <h3>القطع المصلحة (اختياري)</h3>
+                <div id="repairedParts"></div>
+                <button type="button" class="btn btn-secondary" onclick="addRepairedPartField()">+ إضافة قطعة مصلحة</button>
+
+                <!-- Replaced Parts -->
+                <h3>القطع المستبدلة (اختياري)</h3>
+                <div id="replacedParts"></div>
+                <button type="button" class="btn btn-secondary" onclick="addReplacedPartField()">+ إضافة قطعة مستبدلة</button>
+
+                <!-- Painted Parts -->
+                <h3>القطع المصبوغة (اختياري)</h3>
+                <div id="paintedParts"></div>
+                <button type="button" class="btn btn-secondary" onclick="addPaintedPartField()">+ إضافة قطعة مصبوغة</button>
+
+                <button type="submit" class="btn btn-primary" style="margin-top: 20px; width: 100%;">حفظ السيارة</button>
+            </form>
         </div>
     </div>
 
