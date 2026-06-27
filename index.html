@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سوق السيارات العراقي</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">🚗 سوق السيارات</div>
+            <div class="nav-menu" id="navMenu">
+                <a href="#" onclick="showPage('home')" class="nav-link active">الرئيسية</a>
+                <a href="#" onclick="showPage('cars')" class="nav-link">السيارات</a>
+                <span id="userInfo" class="nav-link" style="display:none;">👤 <span id="userName"></span></span>
+                <button onclick="logout()" class="nav-link logout-btn" id="logoutBtn" style="display:none;">تسجيل خروج</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page 1: Authentication -->
+    <div id="homePage" class="page active">
+        <div class="auth-container">
+            <div class="auth-box">
+                <h1>🚗 سوق السيارات العراقي</h1>
+                <p class="subtitle">أكبر منصة لبيع وشراء السيارات في العراق</p>
+
+                <div class="auth-tabs">
+                    <button class="tab-btn active" onclick="switchTab('login')">تسجيل دخول</button>
+                    <button class="tab-btn" onclick="switchTab('signup')">إنشاء حساب</button>
+                </div>
+
+                <!-- Login Form -->
+                <form id="loginForm" class="auth-form active" onsubmit="handleLogin(event)">
+                    <div class="form-group">
+                        <label>البريد الإلكتروني</label>
+                        <input type="email" id="loginEmail" placeholder="أدخل بريدك الإلكتروني" required>
+                    </div>
+                    <div class="form-group">
+                        <label>كلمة المرور</label>
+                        <input type="password" id="loginPassword" placeholder="أدخل كلمة المرور" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">دخول</button>
+                </form>
+
+                <!-- Signup Form -->
+                <form id="signupForm" class="auth-form" onsubmit="handleSignup(event)">
+                    <div class="form-group">
+                        <label>الاسم الكامل</label>
+                        <input type="text" id="signupName" placeholder="أدخل اسمك الكامل" required>
+                    </div>
+                    <div class="form-group">
+                        <label>البريد الإلكتروني</label>
+                        <input type="email" id="signupEmail" placeholder="أدخل بريدك الإلكتروني" required>
+                    </div>
+                    <div class="form-group">
+                        <label>رقم الهاتف</label>
+                        <input type="tel" id="signupPhone" placeholder="أدخل رقم هاتفك" required>
+                    </div>
+                    <div class="form-group">
+                        <label>كلمة المرور</label>
+                        <input type="password" id="signupPassword" placeholder="أدخل كلمة المرور" required>
+                    </div>
+                    <div class="form-group">
+                        <label>تأكيد كلمة المرور</label>
+                        <input type="password" id="signupConfirm" placeholder="أعد إدخال كلمة المرور" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">إنشاء حساب</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Page 2: Cars List -->
+    <div id="carsPage" class="page">
+        <div class="cars-container">
+            <div class="page-header">
+                <h2>السيارات المتاحة</h2>
+                <button class="btn btn-success" onclick="showAddCarForm()" id="addCarBtn" style="display:none;">+ إضافة سيارة</button>
+            </div>
+
+            <!-- Categories Filter -->
+            <div class="categories">
+                <button class="category-btn active" onclick="filterByCategory('all')">الكل</button>
+                <button class="category-btn" onclick="filterByCategory('showroom')">🏪 معارض</button>
+                <button class="category-btn" onclick="filterByCategory('workshop')">🔧 ورش</button>
+                <button class="category-btn" onclick="filterByCategory('parts')">🛠️ أدوات احتياطية</button>
+                <button class="category-btn" onclick="filterByCategory('sonar')">📡 سونار</button>
+            </div>
+
+            <!-- Search Box -->
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="ابحث عن سيارة..." onkeyup="searchCars()">
+            </div>
+
+            <!-- Cars Grid -->
+            <div class="cars-grid" id="carsGrid">
+                <!-- Cars will be displayed here -->
+            </div>
+
+            <!-- Add Car Form Modal -->
+            <div id="addCarModal" class="modal" style="display:none;">
+                <div class="modal-content">
+                    <span class="close" onclick="closeAddCarForm()">&times;</span>
+                    <h2>إضافة سيارة جديدة</h2>
+                    <form onsubmit="handleAddCar(event)">
+                        <div class="form-group">
+                            <label>اسم السيارة</label>
+                            <input type="text" id="carName" placeholder="مثال: BMW X5" required>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>الموديل</label>
+                                <input type="text" id="carModel" placeholder="مثال: 2020" required>
+                            </div>
+                            <div class="form-group">
+                                <label>السنة</label>
+                                <input type="number" id="carYear" placeholder="2024" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>النوع</label>
+                                <select id="carType" required>
+                                    <option value="">اختر النوع</option>
+                                    <option value="سيدان">سيدان</option>
+                                    <option value="SUV">SUV</option>
+                                    <option value="هاتشباك">هاتشباك</option>
+                                    <option value="ستيشن">ستيشن</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>السعر (دينار)</label>
+                                <input type="number" id="carPrice" placeholder="السعر" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>الفئة</label>
+                                <select id="carCategory" required>
+                                    <option value="">اختر الفئة</option>
+                                    <option value="showroom">معرض</option>
+                                    <option value="workshop">ورشة</option>
+                                    <option value="parts">أدوات احتياطية</option>
+                                    <option value="sonar">سونار</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>صورة السيارة (URL)</label>
+                                <input type="url" id="carImage" placeholder="رابط الصورة" required>
+                            </div>
+                        </div>
+
+                        <!-- Repaired Parts -->
+                        <div class="form-group">
+                            <label><strong>القطع المصلحة</strong></label>
+                            <button type="button" class="btn btn-small" onclick="addRepairedPartField()">+ إضافة قطعة مصلحة</button>
+                            <div id="repairedParts"></div>
+                        </div>
+
+                        <!-- Replaced Parts -->
+                        <div class="form-group">
+                            <label><strong>القطع المستبدلة</strong></label>
+                            <button type="button" class="btn btn-small" onclick="addReplacedPartField()">+ إضافة قطعة مستبدلة</button>
+                            <div id="replacedParts"></div>
+                        </div>
+
+                        <!-- Painted Parts -->
+                        <div class="form-group">
+                            <label><strong>القطع المصبوغة</strong></label>
+                            <button type="button" class="btn btn-small" onclick="addPaintedPartField()">+ إضافة قطعة مصبوغة</button>
+                            <div id="paintedParts"></div>
+                        </div>
+
+                        <!-- Province and Phone -->
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>المحافظة</label>
+                                <select id="sellerProvince" required>
+                                    <option value="">اختر المحافظة</option>
+                                    <option value="بغداد">بغداد</option>
+                                    <option value="البصرة">البصرة</option>
+                                    <option value="الموصل">الموصل</option>
+                                    <option value="كربلاء">كربلاء</option>
+                                    <option value="النجف">النجف</option>
+                                    <option value="أربيل">أربيل</option>
+                                    <option value="السليمانية">السليمانية</option>
+                                    <option value="ديالى">ديالى</option>
+                                    <option value="الأنبار">الأنبار</option>
+                                    <option value="كركوك">كركوك</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>رقم الهاتف</label>
+                                <input type="tel" id="sellerPhone" placeholder="07700000000" required>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">حفظ السيارة</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Page 3: Car Details -->
+    <div id="carDetailsPage" class="page">
+        <div class="details-container">
+            <button class="btn btn-back" onclick="showPage('cars')">← العودة</button>
+            
+            <div class="car-details">
+                <!-- Car Image -->
+                <div class="car-image-section">
+                    <img id="detailsCarImage" src="" alt="السيارة" class="car-detail-image">
+                </div>
+
+                <!-- Car Info -->
+                <div class="car-info-section">
+                    <h1 id="detailsCarName"></h1>
+                    <p class="car-price" id="detailsCarPrice"></p>
+                    <p class="car-category" id="detailsCarCategory"></p>
+
+                    <!-- Basic Info -->
+                    <div class="info-block">
+                        <h3>📋 المعلومات الأساسية</h3>
+                        <div class="info-grid">
+                            <p><strong>الموديل:</strong> <span id="detailsCarModel"></span></p>
+                            <p><strong>السنة:</strong> <span id="detailsCarYear"></span></p>
+                            <p><strong>النوع:</strong> <span id="detailsCarType"></span></p>
+                        </div>
+                    </div>
+
+                    <!-- Repaired Parts -->
+                    <div class="info-block">
+                        <h3>🔧 القطع المصلحة</h3>
+                        <div id="repairedPartsDisplay">
+                            <p class="no-data">لا توجد قطع مصلحة</p>
+                        </div>
+                    </div>
+
+                    <!-- Replaced Parts -->
+                    <div class="info-block">
+                        <h3>🔄 القطع المستبدلة</h3>
+                        <div id="replacedPartsDisplay">
+                            <p class="no-data">لا توجد قطع مستبدلة</p>
+                        </div>
+                    </div>
+
+                    <!-- Painted Parts -->
+                    <div class="info-block">
+                        <h3>🎨 القطع المصبوغة</h3>
+                        <div id="paintedPartsDisplay">
+                            <p class="no-data">لا توجد قطع مصبوغة</p>
+                        </div>
+                    </div>
+
+                    <!-- Seller Info -->
+                    <div class="info-block seller-info">
+                        <h3>👤 معلومات البائع</h3>
+                        <p><strong>الاسم:</strong> <span id="detailsSellerName"></span></p>
+                        <p><strong>الهاتف:</strong> <span id="detailsSellerPhone"></span></p>
+                        <p><strong>المحافظة:</strong> <span id="detailsSellerProvince"></span></p>
+                        <button class="btn btn-contact" onclick="contactSeller()">📞 اتصل بالبائع</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>
