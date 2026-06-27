@@ -4,18 +4,36 @@ let allCars = [];
 let filteredCars = [];
 let currentFilter = 'all';
 let currentCarDetails = null;
-let repairedPartsCount = 0;
-let replacedPartsCount = 0;
-let paintedPartsCount = 0;
+
+// ==================== Initialize ====================
+document.addEventListener('DOMContentLoaded', () => {
+    // Load saved user
+    const saved = localStorage.getItem('currentUser');
+    if (saved) {
+        currentUser = JSON.parse(saved);
+        updateAuthUI();
+    }
+    
+    // Load cars
+    loadCars();
+    
+    // Close modal when clicking outside
+    const modal = document.getElementById('addCarModal');
+    if (modal) {
+        window.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                closeAddCarForm();
+            }
+        });
+    }
+});
 
 // ==================== Authentication Functions ====================
 
 function switchTab(tab) {
-    // Remove active class from all tabs and forms
     document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
     document.querySelectorAll('.auth-form').forEach(form => form.classList.remove('active'));
     
-    // Add active class to selected tab and form
     event.target.classList.add('active');
     document.getElementById(tab + 'Form').classList.add('active');
 }
@@ -26,7 +44,6 @@ function handleLogin(event) {
     const email = document.getElementById('loginEmail').value;
     const password = document.getElementById('loginPassword').value;
     
-    // Simple validation
     if (email && password.length >= 6) {
         currentUser = {
             email: email,
@@ -36,10 +53,14 @@ function handleLogin(event) {
         localStorage.setItem('currentUser', JSON.stringify(currentUser));
         showToast('✓ تم تسجيل الدخول بنجاح!', 'success');
         updateAuthUI();
+        
+        document.getElementById('loginEmail').value = '';
+        document.getElementById('loginPassword').value = '';
+        
         setTimeout(() => showPage('cars'), 500);
         loadCars();
     } else {
-        showToast('✗ البريد الإلكتروني وكلمة المرور مطلوبة!', 'error');
+        showToast('✗ البريد والرمز مطلوبين!', 'error');
     }
 }
 
@@ -58,7 +79,7 @@ function handleSignup(event) {
     }
     
     if (password.length < 6) {
-        showToast('✗ كلمة المرور يجب أن تكون 6 أحرف على الأقل!', 'error');
+        showToast('✗ الرمز 6 أحرف على الأقل!', 'error');
         return;
     }
     
@@ -71,6 +92,9 @@ function handleSignup(event) {
     localStorage.setItem('currentUser', JSON.stringify(currentUser));
     showToast('✓ تم إنشاء الحساب بنجاح!', 'success');
     updateAuthUI();
+    
+    document.getElementById('signupForm').reset();
+    
     setTimeout(() => showPage('cars'), 500);
     loadCars();
 }
@@ -82,7 +106,6 @@ function logout() {
     updateAuthUI();
     showPage('home');
     
-    // Clear form
     document.getElementById('loginForm').reset();
     document.getElementById('signupForm').reset();
 }
@@ -108,15 +131,12 @@ function updateAuthUI() {
 // ==================== Page Navigation ====================
 
 function showPage(pageName) {
-    // Hide all pages
     document.querySelectorAll('.page').forEach(page => {
         page.classList.remove('active');
     });
     
-    // Show selected page
     document.getElementById(pageName + 'Page').classList.add('active');
     
-    // Update navbar
     document.querySelectorAll('.nav-link').forEach(link => {
         link.classList.remove('active');
     });
@@ -128,10 +148,9 @@ function showPage(pageName) {
     }
 }
 
-// ==================== Cars Management ====================
+// ==================== Load Cars ====================
 
 function loadCars() {
-    // Sample data
     const sampleCars = [
         {
             id: 1,
@@ -152,7 +171,7 @@ function loadCars() {
                 { name: 'الباب الأمامي الأيسر', image: 'https://images.unsplash.com/photo-1633356122544-f134324ef6db?w=150&h=150&fit=crop' }
             ],
             seller: {
-                name: currentUser ? currentUser.name : 'أحمد محمد',
+                name: 'أحمد محمد',
                 phone: '07700123456',
                 province: 'بغداد'
             }
@@ -226,9 +245,13 @@ function loadCars() {
         }
     ];
     
-    // Load from localStorage or use sample data
     const saved = localStorage.getItem('carsData');
     allCars = saved ? JSON.parse(saved) : sampleCars;
+    
+    // Save default cars
+    if (!saved) {
+        localStorage.setItem('carsData', JSON.stringify(allCars));
+    }
     
     filteredCars = allCars;
     displayCars();
@@ -239,7 +262,7 @@ function displayCars() {
     grid.innerHTML = '';
     
     if (filteredCars.length === 0) {
-        grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; padding: 40px; color: #7f8c8d;">لا توجد سيارات متطابقة</p>';
+        grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; padding: 40px; color: #7f8c8d;">لا توجد سيارات</p>';
         return;
     }
     
@@ -274,11 +297,9 @@ function displayCars() {
 function filterByCategory(category) {
     currentFilter = category;
     
-    // Update button styles
     document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
     event.target.classList.add('active');
     
-    // Filter cars
     if (category === 'all') {
         filteredCars = allCars;
     } else {
@@ -297,7 +318,6 @@ function searchCars() {
         car.type.toLowerCase().includes(searchTerm)
     );
     
-    // Apply category filter too
     if (currentFilter !== 'all') {
         filteredCars = filteredCars.filter(car => car.category === currentFilter);
     }
@@ -318,7 +338,6 @@ function showCarDetails(carId) {
         'sonar': '📡 سونار'
     };
     
-    // Basic info
     document.getElementById('detailsCarName').textContent = car.name;
     document.getElementById('detailsCarPrice').textContent = car.price.toLocaleString('ar-IQ') + ' د.ع';
     document.getElementById('detailsCarCategory').textContent = categoryLabels[car.category];
@@ -383,34 +402,30 @@ function contactSeller() {
     const carName = currentCarDetails.name;
     const message = `مرحباً، أنا مهتم بـ ${carName} ${currentCarDetails.year}. هل السيارة متاحة؟`;
     
-    // WhatsApp link
     const whatsappUrl = `https://wa.me/964${phone.slice(1)}?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
     
-    showToast('✓ جاري توجيهك إلى WhatsApp...', 'success');
+    showToast('✓ جاري التوجيه إلى WhatsApp...', 'success');
 }
 
 // ==================== Add Car Functions ====================
 
 function showAddCarForm() {
     if (!currentUser) {
-        showToast('✗ يجب تسجيل الدخول أولاً!', 'error');
+        showToast('✗ سجل دخول أولاً!', 'error');
         return;
     }
-    
-    repairedPartsCount = 0;
-    replacedPartsCount = 0;
-    paintedPartsCount = 0;
     
     document.getElementById('repairedParts').innerHTML = '';
     document.getElementById('replacedParts').innerHTML = '';
     document.getElementById('paintedParts').innerHTML = '';
+    document.getElementById('addCarForm').reset();
     
-    document.getElementById('addCarModal').classList.add('show');
+    document.getElementById('addCarModal').style.display = 'flex';
 }
 
 function closeAddCarForm() {
-    document.getElementById('addCarModal').classList.remove('show');
+    document.getElementById('addCarModal').style.display = 'none';
 }
 
 function addRepairedPartField() {
@@ -423,19 +438,19 @@ function addRepairedPartField() {
     field.innerHTML = `
         <div class="form-group">
             <label>اسم القطعة</label>
-            <input type="text" placeholder="مثال: محرك، باب، كير" class="part-name">
+            <input type="text" placeholder="محرك، باب، كير..." class="part-name" required>
         </div>
         <div class="form-group">
             <label>التاريخ</label>
-            <input type="date" class="part-date">
+            <input type="date" class="part-date" required>
         </div>
         <div class="form-group">
-            <label>الورشة أو المصلح</label>
-            <input type="text" placeholder="اسم الورشة أو المصلح" class="part-workshop">
+            <label>الورشة/المصلح</label>
+            <input type="text" placeholder="اسم الورشة" class="part-workshop" required>
         </div>
         <div class="form-group">
             <label>ملاحظات</label>
-            <textarea placeholder="ملاحظات إضافية" class="part-notes" rows="2"></textarea>
+            <textarea placeholder="ملاحظات..." class="part-notes" rows="2"></textarea>
         </div>
         <button type="button" class="remove-part-btn" onclick="document.getElementById('${fieldId}').remove()">حذف</button>
     `;
@@ -453,11 +468,11 @@ function addReplacedPartField() {
     field.innerHTML = `
         <div class="form-group">
             <label>اسم القطعة</label>
-            <input type="text" placeholder="مثال: بطارية، إطارات، مكابح" class="part-name">
+            <input type="text" placeholder="بطارية، إطارات، مكابح..." class="part-name" required>
         </div>
         <div class="form-group">
             <label>التاريخ</label>
-            <input type="date" class="part-date">
+            <input type="date" class="part-date" required>
         </div>
         <button type="button" class="remove-part-btn" onclick="document.getElementById('${fieldId}').remove()">حذف</button>
     `;
@@ -475,11 +490,11 @@ function addPaintedPartField() {
     field.innerHTML = `
         <div class="form-group">
             <label>اسم القطعة</label>
-            <input type="text" placeholder="مثال: الدعامة الأمامية، السقف" class="part-name">
+            <input type="text" placeholder="الدعامة، السقف..." class="part-name" required>
         </div>
         <div class="form-group">
-            <label>صورة القطعة (رابط URL)</label>
-            <input type="url" placeholder="رابط الصورة" class="part-image-url">
+            <label>رابط الصورة</label>
+            <input type="url" placeholder="https://..." class="part-image-url" required>
         </div>
         <button type="button" class="remove-part-btn" onclick="document.getElementById('${fieldId}').remove()">حذف</button>
     `;
@@ -491,7 +506,7 @@ function handleAddCar(event) {
     event.preventDefault();
     
     if (!currentUser) {
-        showToast('✗ يجب تسجيل الدخول أولاً!', 'error');
+        showToast('✗ سجل دخول أولاً!', 'error');
         return;
     }
     
@@ -514,7 +529,6 @@ function handleAddCar(event) {
         }
     };
     
-    // Collect repaired parts
     document.querySelectorAll('#repairedParts .part-field').forEach(field => {
         newCar.repairedParts.push({
             name: field.querySelector('.part-name').value,
@@ -524,7 +538,6 @@ function handleAddCar(event) {
         });
     });
     
-    // Collect replaced parts
     document.querySelectorAll('#replacedParts .part-field').forEach(field => {
         newCar.replacedParts.push({
             name: field.querySelector('.part-name').value,
@@ -532,11 +545,10 @@ function handleAddCar(event) {
         });
     });
     
-    // Collect painted parts
     document.querySelectorAll('#paintedParts .part-field').forEach(field => {
         newCar.paintedParts.push({
             name: field.querySelector('.part-name').value,
-            image: field.querySelector('.part-image-url').value || 'https://via.placeholder.com/150'
+            image: field.querySelector('.part-image-url').value
         });
     });
     
@@ -548,8 +560,6 @@ function handleAddCar(event) {
     showToast('✓ تمت إضافة السيارة بنجاح!', 'success');
     closeAddCarForm();
     displayCars();
-    
-    event.target.reset();
 }
 
 // ==================== Toast Notification ====================
@@ -563,25 +573,3 @@ function showToast(message, type = 'success') {
         toast.classList.remove('show');
     }, 3000);
 }
-
-// ==================== Initialize ====================
-
-document.addEventListener('DOMContentLoaded', () => {
-    // Check if user is logged in
-    const saved = localStorage.getItem('currentUser');
-    if (saved) {
-        currentUser = JSON.parse(saved);
-        updateAuthUI();
-    }
-    
-    // Load cars
-    loadCars();
-    
-    // Close modal when clicking outside
-    const modal = document.getElementById('addCarModal');
-    window.addEventListener('click', (e) => {
-        if (e.target === modal) {
-            closeAddCarForm();
-        }
-    });
-});
